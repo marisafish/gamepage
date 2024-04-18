@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>シューティングゲーム</title>
+    <style>
+        canvas {
+            display: block;
+            margin: auto;
+            background-color: #222;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="gameScreen" width="800" height="600"></canvas>
+<script>
+const canvas = document.getElementById('gameScreen');
+const ctx = canvas.getContext('2d');
+
+// プレイヤーの設定
+const player = {
+    x: canvas.width / 2,
+    y: canvas.height - 50,
+    width: 50,
+    height: 50,
+    speed: 5,
+    bullets: []
+};
+
+// 敵の設定
+const enemies = [];
+
+// 弾丸の設定
+const bulletSpeed = 10;
+const bulletSize = 5;
+
+// 敵を追加する関数
+function addEnemy() {
+    const enemy = {
+        x: Math.random() * (canvas.width - 50),
+        y: 0,
+        width: 50,
+        height: 50,
+        speed: 2
+    };
+    enemies.push(enemy);
+}
+
+// キー入力の処理
+const keys = {};
+document.addEventListener('keydown', (e) => {
+    keys[e.code] = true;
+});
+document.addEventListener('keyup', (e) => {
+    keys[e.code] = false;
+});
+
+// プレイヤーの描画
+function drawPlayer() {
+    ctx.fillStyle = '#00FF00';
+    ctx.fillRect(player.x, player.y, player.width, player.height);
+}
+
+// 敵の描画
+function drawEnemies() {
+    ctx.fillStyle = '#FF0000';
+    for (let enemy of enemies) {
+        ctx.fillRect(enemy.x, enemy.y, enemy.width, enemy.height);
+    }
+}
+
+// 弾丸の描画
+function drawBullets() {
+    ctx.fillStyle = '#FFFFFF';
+    for (let bullet of player.bullets) {
+        ctx.fillRect(bullet.x, bullet.y, bullet.width, bullet.height);
+    }
+}
+
+// ゲームの更新
+function update() {
+    // プレイヤーの移動
+    if (keys['ArrowLeft'] && player.x > 0) {
+        player.x -= player.speed;
+    }
+    if (keys['ArrowRight'] && player.x < canvas.width - player.width) {
+        player.x += player.speed;
+    }
+
+      // 弾丸の発射
+    if (keys['Space']) {
+        const bullet = {
+            x: player.x + player.width / 2 - bulletSize / 2,
+            y: player.y,
+            width: bulletSize,
+            height: bulletSize,
+            speed: bulletSpeed
+        };
+        player.bullets.push(bullet);
+        keys['Space'] = false;
+    }
+
+    // 弾丸の移動
+    for (let bullet of player.bullets) {
+        bullet.y -= bullet.speed;
+    }
+
+    // 敵の移動
+    for (let enemy of enemies) {
+        enemy.y += enemy.speed;
+    }
+
+    // 弾丸と敵の衝突判定
+    for (let i = 0; i < player.bullets.length; i++) {
+        for (let j = 0; j < enemies.length; j++) {
+            const bullet = player.bullets[i];
+            const enemy = enemies[j];
+            if (bullet.x < enemy.x + enemy.width &&
+                bullet.x + bullet.width > enemy.x &&
+                bullet.y < enemy.y + enemy.height &&
+                bullet.y + bullet.height > enemy.y) {
+                player.bullets.splice(i, 1);
+                enemies.splice(j, 1);
+                break;
+            }
+        }
+    }
+
+    // 敵の生成
+    if (Math.random() < 0.02) {
+        addEnemy();
+    }
+
+    // 画面のクリア
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // オブジェクトの描画
+    drawPlayer();
+    drawEnemies();
+    drawBullets();
+
+    // ループ
+    requestAnimationFrame(update);
+}
+
+// ゲームの開始
+update();
+
+let startX = 0;
+    let startY = 0;
+    function touchStart(e){
+        e.preventDefault();
+        startX = e.touches[0].pageX;
+        startY = e.touches[0].pageY;
+
+        let afterTetro = tetroList[0].tetro.concat();
+        let positionX = tetroList[0].x;
+        let positionY = tetroList[0].y;     
+
+        if(startY<500 && startY>200 && startX>85 && startX<165){
+            afterTetro = [];
+            for(let i=0; i<4; i++){
+                afterTetro.push(tetroList[0].tetro[i*2+1]*-1);
+                afterTetro.push(tetroList[0].tetro[i*2]);
+            }
+            afterTetro.push(tetroList[0].tetro[8]);
+        }
+        if(startY>200 && startX<80){
+            positionX = tetroList[0].x-1;
+        }
+        if(startY>200 && startX>170){
+            positionX = tetroList[0].x+1;
+        }
+        if(startY>500 && startX>85 && startX<165){
+            tetroDown = true;
+        }     
+        let isMove = judgeMove(afterTetro, positionX, positionY);
+        if(isMove){
+            tetroList[0].tetro = afterTetro;
+            tetroList[0].x = positionX;
+            tetroList[0].y = positionY;   
+        }
+    }
+    function touchEnd(e){
+        e.preventDefault();
+        tetroDown = false;     
+    }
+</script>
+</body>
+</html>
