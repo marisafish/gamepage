@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>フルーツスラッシュゲーム</title>
+    <style>
+@import url("https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@300;400;500;700&display=swap");
+html, body {
+  font-family: 'Zen Maru Gothic';
+  font-size: 16px;
+    height: 550px;  /* 高さ指定 */
+    background: linear-gradient(-225deg, #2CD8D5 0%, #C5C1FF 56%, #FFBAC3 100%);    /* 背景色指定 */
+    background-repeat: no-repeat;
+    background-position:60% 60%;
+    background-size:cover;
+}
+
+        canvas {
+            border: 1px solid black;
+        }
+    </style>
+</head>
+<body>
+    <h1>フルーツスラッシュゲーム</h1>
+    <h2>暇つぶしに！</h2>
+    <p>スコア：<span id="score">0</span></p>
+    <canvas id="gameCanvas" width="480" height="320"></canvas>
+<script>
+const canvas = document.getElementById('gameCanvas');
+const ctx = canvas.getContext('2d');
+const fruitImage = new Image();
+fruitImage.src = 'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjFR0u6sU9SO2EmpdDbkWhRm0BNGTL025PCVABYGZj4tG7IZ3B7erC7IIhOEJfzjp2NXRLQcO7XWSsl4PdlKsUtkoiLnH8PRaClVmSb8ASmzoQ48mx7jQpzPsJd89IXH5DUq3HYMZLfyi0M/s400/fruit_momo.png'; // フルーツ画像のパス
+
+const fruitWidth = 100;
+const fruitHeight = 100;
+
+let fruitX = Math.random() * (canvas.width - fruitWidth);
+let fruitY = Math.random() * (canvas.height - fruitHeight);
+
+function drawFruit() {
+    ctx.drawImage(fruitImage, fruitX, fruitY, fruitWidth, fruitHeight);
+}
+
+const scoreElement = document.getElementById('score');
+let score = 0;
+
+function gameLoop() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    drawFruit();
+    requestAnimationFrame(gameLoop);
+}
+
+canvas.addEventListener('click', (e) => {
+    const mouseX = e.clientX - canvas.offsetLeft;
+    const mouseY = e.clientY - canvas.offsetTop;
+
+    if (mouseX >= fruitX && mouseX <= fruitX + fruitWidth && mouseY >= fruitY && mouseY <= fruitY + fruitHeight) {
+        score++;
+        scoreElement.textContent = score;
+        fruitX = Math.random() * (canvas.width - fruitWidth);
+        fruitY = Math.random() * (canvas.height - fruitHeight);
+    }
+});
+
+gameLoop();
+</script>
+</body>
+</html>
